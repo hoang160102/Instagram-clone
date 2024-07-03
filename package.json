@@ -11,9 +11,12 @@
     "@jamescoyle/vue-icon": "^0.1.2",
     "@mdi/js": "^7.4.47",
     "core-js": "^3.8.3",
+    "firebase": "^10.12.2",
     "vue": "^3.2.13",
-    "vue-router": "^4.0.13",
-    "vuetify": "^3.6.10"
+    "vue-router": "^4.4.0",
+    "vue-toastification": "^2.0.0-rc.5",
+    "vuetify": "^3.6.10",
+    "vuex": "^4.0.2"
   },
   "devDependencies": {
     "@babel/core": "^7.12.16",

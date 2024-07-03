@@ -1,35 +1,48 @@
 <template>
-    <div class="logo">
+    <div v-if="user" class="logo">
       <div class="brand py-5 px-3 text-2xl mb-5">Instagram</div>
-      <v-icon size="32" class="logo-insta py-5 px-3 text-2xl mb-5">mdi-instagram</v-icon>
+      <v-icon size="30" class="logo-insta py-5 px-3 text-2xl mb-5">mdi-instagram</v-icon>
     </div>
     <div class="navigation px-3">
-      <div class="nav home mb-5 flex align-center">
-        <v-icon size="32">mdi-home-outline</v-icon>
+      <router-link :to="{ name: 'Home'}" class="nav home mb-5 flex align-center">
+        <v-icon size="30">mdi-home-variant-outline</v-icon>
         <span class="ml-4 text-lg">Home</span>
-      </div>
+      </router-link>
       <div class="nav home mb-5 flex align-center">
-        <v-icon size="32">mdi-magnify</v-icon>
+        <v-icon size="30">mdi-magnify</v-icon>
         <span class="ml-4 text-lg">Search</span>
       </div>
       <div class="nav message mb-5 flex align-center">
-        <v-icon size="32">mdi-chat-outline</v-icon>
+        <v-icon size="30">mdi-chat-outline</v-icon>
         <span class="ml-4 text-lg">Messages</span>
       </div>
       <div class="nav create mb-5 flex align-center">
-        <v-icon size="32">mdi-plus</v-icon>
+        <v-icon size="30">mdi-plus</v-icon>
         <span class="ml-4 text-lg">Create</span>
       </div>
-      <div class="nav profile mb-5 flex align-center">
-        <v-icon size="32">mdi-plus</v-icon>
+      <router-link v-if="user" :to="`/${user.username}/`" class="nav profile mb-5 flex align-center">
+        <img src="../../assets/avatar/default-avatar.jpg" alt="">
         <span class="ml-4 text-lg">Profile</span>
-      </div>
+      </router-link>
     </div>
 </template>
 
 <script>
+import { ref } from 'vue';
+import { useStore } from 'vuex';
 export default {
-  setup() {},
+  setup() {
+    const store = useStore()
+    const user = ref(null)
+    async function run() {
+      await store.dispatch('auth/auth/getCurrentUser')
+      user.value = store.state.auth.auth.user
+    }
+    run()
+    return {
+      user
+    }
+  },
 };
 </script>
 
@@ -45,6 +58,12 @@ export default {
 
 .home > i {
   font-weight: bolder;
+}
+
+img {
+  width: 32px;
+  border-radius: 50%;
+  border: 1px solid #ccc;
 }
 
 @media screen and (max-width: 1240px) {

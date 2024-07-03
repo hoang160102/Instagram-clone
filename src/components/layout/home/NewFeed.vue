@@ -31,7 +31,7 @@
           </div>
         </div>
         <div class="save cursor-pointer">
-          <v-icon size="30">mdi-content-save-outline</v-icon>
+          <v-icon size="30">mdi-bookmark-outline</v-icon>
         </div>
       </div>
       <div class="number-likes text-sm font-semibold mt-1 cursor-pointer">

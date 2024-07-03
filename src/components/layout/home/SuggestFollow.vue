@@ -1,14 +1,14 @@
 <template>
   <div class="right mt-10 h-screen">
-    <div class="user flex align-center justify-between">
-      <div class="info flex align-center">
+    <div v-if="user" class="user flex align-center justify-between">
+      <router-link :to="{ name: 'Profile', params: { username: user.username } }" class="info flex align-center">
         <img src="../../../assets/avatar/default-avatar.jpg" alt="" />
         <div class="user-info ml-3">
-          <div class="username font-semibold text-sm">_viet_hoang</div>
-          <div class="name text-sm text-gray-500">Nguyen Viet Hoang</div>
+          <div class="username font-semibold text-sm">{{ user.username }}</div>
+          <div class="name text-sm text-gray-500">{{ user.fullName }}</div>
         </div>
-      </div>
-      <div class="logout text-sm text-cyan-500 font-semibold cursor-pointer">
+      </router-link>
+      <div @click="signOut" class="logout text-sm text-cyan-500 font-semibold cursor-pointer">
         Logout
       </div>
     </div>
@@ -30,7 +30,9 @@
               <div class="name text-sm text-gray-500">Nguyen Viet Hoang</div>
             </div>
           </div>
-          <div class="logout text-cyan-500 text-sm font-semibold cursor-pointer">
+          <div
+            class="logout text-cyan-500 text-sm font-semibold cursor-pointer"
+          >
             Follow
           </div>
         </div>
@@ -42,7 +44,9 @@
               <div class="name text-sm text-gray-500">Nguyen Viet Hoang</div>
             </div>
           </div>
-          <div class="logout text-cyan-500 text-sm font-semibold cursor-pointer">
+          <div
+            class="logout text-cyan-500 text-sm font-semibold cursor-pointer"
+          >
             Follow
           </div>
         </div>
@@ -54,7 +58,9 @@
               <div class="name text-sm text-gray-500">Nguyen Viet Hoang</div>
             </div>
           </div>
-          <div class="logout text-cyan-500 text-sm font-semibold cursor-pointer">
+          <div
+            class="logout text-cyan-500 text-sm font-semibold cursor-pointer"
+          >
             Follow
           </div>
         </div>
@@ -66,7 +72,9 @@
               <div class="name text-sm text-gray-500">Nguyen Viet Hoang</div>
             </div>
           </div>
-          <div class="logout text-cyan-500 text-sm font-semibold cursor-pointer">
+          <div
+            class="logout text-cyan-500 text-sm font-semibold cursor-pointer"
+          >
             Follow
           </div>
         </div>
@@ -78,7 +86,9 @@
               <div class="name text-sm text-gray-500">Nguyen Viet Hoang</div>
             </div>
           </div>
-          <div class="logout text-cyan-500 text-sm font-semibold cursor-pointer">
+          <div
+            class="logout text-cyan-500 text-sm font-semibold cursor-pointer"
+          >
             Follow
           </div>
         </div>
@@ -86,6 +96,29 @@
     </div>
   </div>
 </template>
+
+<script>
+import { ref } from "vue";
+import { useStore } from "vuex";
+export default {
+  setup() {
+    const store = useStore();
+    const user = ref(null);
+    const fetchData = async () => {
+      await store.dispatch("auth/auth/getCurrentUser");
+      user.value = store.getters['auth/auth/user']
+    }
+    const signOut = async () => {
+      await store.dispatch('auth/auth/logout')
+    }
+    fetchData()
+    return {
+      user,
+      signOut
+    };
+  },
+};
+</script>
 
 <style scoped>
 .right {
