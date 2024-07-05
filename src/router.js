@@ -5,6 +5,7 @@ import RegisterAccount from "./components/account/RegisterAccount.vue";
 import ProfilePage from "./views/ProfilePage.vue";
 import UserPosts from './components/layout/user-post/UserPosts.vue'
 import SavedPost from "./components/layout/user-post/SavedPost.vue";
+import EditProfile from "./views/EditProfile.vue"
 
 const router = createRouter({
   history: createWebHistory(),
@@ -48,6 +49,12 @@ const router = createRouter({
         },
       ],
     },
+    {
+      path: '/accounts/edit',
+      name: 'Edit',
+      component: EditProfile,
+      meta: { title: "Edit Profile", requiresAuth: true }
+    }
   ],
 });
 

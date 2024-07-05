@@ -1,7 +1,7 @@
 <template>
   <div class="right mt-10 h-screen">
     <div v-if="user" class="user flex align-center justify-between">
-      <router-link :to="{ name: 'Profile', params: { username: user.username } }" class="info flex align-center">
+      <router-link :to="`/${user.username}`" class="info flex align-center">
         <img src="../../../assets/avatar/default-avatar.jpg" alt="" />
         <div class="user-info ml-3">
           <div class="username font-semibold text-sm">{{ user.username }}</div>
@@ -111,7 +111,7 @@ export default {
     const signOut = async () => {
       await store.dispatch('auth/auth/logout')
     }
-    fetchData()
+    fetchData() 
     return {
       user,
       signOut

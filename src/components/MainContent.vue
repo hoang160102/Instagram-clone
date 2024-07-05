@@ -12,7 +12,7 @@
       <slot></slot>
     </div>
   </section>
-  <div class="bottom-bar">
+  <div class="bottom-bar bg-white">
     <navigation-bar></navigation-bar>
   </div>
 </template>

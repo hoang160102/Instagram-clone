@@ -14,6 +14,7 @@ import {
   collection,
   getDocs,
   getDoc,
+  updateDoc
 } from "firebase/firestore";
 import { useToast } from "vue-toastification";
 import router from "@/router";
@@ -76,7 +77,6 @@ export const actions = {
         }, 1500);
       })
       .catch((err) => {
-        console.log(err.code);
         if (err.code.includes("auth/invalid-credential")) {
           commit("getErrorLogin", "Email or password is incorrect");
         }
@@ -102,6 +102,7 @@ export const actions = {
         following: getUser[0].data().following,
         post: getUser[0].data().post,
         profilePicture: getUser[0].data().profilePicture,
+        privateAccount: getUser[0].data().privateAccount
       };
       await commit("currentUser", currentUser)
     } catch (err) {
@@ -141,11 +142,30 @@ export const actions = {
           following: [],
           post: [],
           savedPosts: [],
+          privateAccount: false
         });
         router.push({ name: "Home" });
       }
     } catch (err) {
       console.error("Error during sign in or Firestore write:", err);
+    }
+  },
+  async updateInfo(_, user) {
+    const getUserFromDatabase = doc(db, "users", auth.currentUser.uid)
+    try {
+      await updateDoc(getUserFromDatabase, {
+        bio: user.bio,
+        username: user.username,
+        fullName: user.fullName,
+        privateAccount: user.privateAccount
+      })
+      toast.success('Your account updated')
+      setTimeout(() => {
+        router.push(`/${user.username}`)
+      }, 1500)
+    }
+    catch(err) {
+      toast.error('Update error, please try again')
     }
   }
 };
