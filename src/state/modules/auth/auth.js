@@ -14,10 +14,17 @@ import {
   collection,
   getDocs,
   getDoc,
-  updateDoc
+  updateDoc,
 } from "firebase/firestore";
+import {
+  getDownloadURL,
+  getStorage,
+  ref,
+  uploadString,
+} from "firebase/storage";
 import { useToast } from "vue-toastification";
 import router from "@/router";
+const storage = getStorage();
 const toast = useToast();
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -102,9 +109,9 @@ export const actions = {
         following: getUser[0].data().following,
         post: getUser[0].data().post,
         profilePicture: getUser[0].data().profilePicture,
-        privateAccount: getUser[0].data().privateAccount
+        privateAccount: getUser[0].data().privateAccount,
       };
-      await commit("currentUser", currentUser)
+      await commit("currentUser", currentUser);
     } catch (err) {
       return err;
     }
@@ -115,26 +122,25 @@ export const actions = {
       router.push({ name: "Login" });
     });
   },
-  async loginWithGoogle({commit}) {
+  async loginWithGoogle({ commit }) {
     try {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
-      const userRef = doc(db, "users", user.uid)
-      const userSnapshot = await getDoc(userRef)
+      const userRef = doc(db, "users", user.uid);
+      const userSnapshot = await getDoc(userRef);
       if (userSnapshot.exists()) {
-        const userDoc = userSnapshot.data()
-        console.log(userDoc)
-        await commit("currentUser", userDoc)
+        const userDoc = userSnapshot.data();
+        console.log(userDoc);
+        await commit("currentUser", userDoc);
         router.push({ name: "Home" });
-      }
-      else {
+      } else {
         await setDoc(doc(db, "users", user.uid), {
           id: user.uid,
           fullName: user.displayName,
           email: user.email,
           username: user.displayName,
-          password: '',
+          password: "",
           profilePicture: user.photoURL,
           bio: "",
           createdAt: Date.now(),
@@ -142,7 +148,7 @@ export const actions = {
           following: [],
           post: [],
           savedPosts: [],
-          privateAccount: false
+          privateAccount: false,
         });
         router.push({ name: "Home" });
       }
@@ -151,23 +157,53 @@ export const actions = {
     }
   },
   async updateInfo(_, user) {
-    const getUserFromDatabase = doc(db, "users", auth.currentUser.uid)
+    const getUserFromDatabase = doc(db, "users", auth.currentUser.uid);
     try {
       await updateDoc(getUserFromDatabase, {
         bio: user.bio,
         username: user.username,
         fullName: user.fullName,
-        privateAccount: user.privateAccount
-      })
-      toast.success('Your account updated')
+        privateAccount: user.privateAccount,
+      });
+      toast.success("Your account updated");
       setTimeout(() => {
-        router.push(`/${user.username}`)
-      }, 1500)
+        router.push(`/${user.username}`);
+      }, 1500);
+    } catch (err) {
+      toast.error("Update error, please try again");
     }
-    catch(err) {
-      toast.error('Update error, please try again')
+  },
+  async updateProfilePicture(_, file) {
+    const storageRef = ref(storage, `profilePics/${auth.currentUser.uid}`);
+    const userDocRef = doc(db, "users", auth.currentUser.uid);
+    let URL = "";
+
+    try {
+      if (file) {
+        const reader = new FileReader();
+
+        reader.onloadend = async () => {
+        const dataURL = reader.result;
+
+          try {
+            await uploadString(storageRef, dataURL, "data_url");
+            URL = await getDownloadURL(storageRef);
+
+            const updateProfile = {
+              profilePicture: URL,
+            };
+
+            await updateDoc(userDocRef, updateProfile);
+          } catch (uploadError) {
+            console.error("Upload error:", uploadError);
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    } catch (error) {
+      console.error("Error:", error);
     }
-  }
+  },
 };
 
 export const getters = {

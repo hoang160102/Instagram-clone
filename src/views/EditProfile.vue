@@ -6,15 +6,35 @@
         class="change-photo py-4 px-5 mb-10 flex flex-wrap align-center justify-between bg-gray-200 rounded-lg w-full"
       >
         <div class="user flex mb-2 align-center">
-          <img src="../assets/avatar/default-avatar.jpg" alt="" />
+          <img
+            class="object-cover"
+            v-if="profileImg.length > 5"
+            :src="fileImg || profileImg"
+            alt=""
+          />
+          <img
+            class="object-cover"
+            v-else
+            src="../assets/avatar/default-avatar.jpg"
+            alt=""
+          />
           <div class="user-info ml-10">
             <div class="username text-lg font-bold">{{ user.username }}</div>
             <div class="name text-gray-500">{{ user.fullName }}</div>
           </div>
         </div>
-        <div class="change px-5 py-2 font-semibold bg-sky-500 mr-10 text-white">
+        <input
+          type="file"
+          ref="fileInput"
+          @change="handleFileUpload"
+          class="hidden"
+        />
+        <button
+          @click="triggerFileInput"
+          class="change px-5 py-2 font-semibold bg-sky-500 mr-10 text-white"
+        >
           Change Photo
-        </div>
+        </button>
       </div>
       <form @submit.prevent="updateUser">
         <div class="form-control mb-10">
@@ -86,7 +106,12 @@
           </div>
         </div>
         <div class="submit mt-4 flex justify-end">
-          <button type="submit" class="px-10 py-3 font-semibold bg-sky-500 text-white">Submit</button>
+          <button
+            type="submit"
+            class="px-10 py-3 font-semibold bg-sky-500 text-white"
+          >
+            Submit
+          </button>
         </div>
       </form>
     </div>
@@ -94,36 +119,56 @@
 </template>
 
 <script>
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import { useStore } from "vuex";
 export default {
   setup() {
-    const store = useStore()
-    const user = ref(null)
-    const name = ref('')
-    const username = ref('')
-    const bio = ref('')
-    const isOn = ref(null)
+    const store = useStore();
+    const user = ref(null);
+    const name = ref("");
+    const username = ref("");
+    const bio = ref("");
+    const profileImg = ref("");
+    const fileImg = ref(null)
+    const isOn = ref(null);
+    const fileInput = ref(null);
     const fetchData = async () => {
       await store.dispatch("auth/auth/getCurrentUser");
-      user.value = store.getters['auth/auth/user']
-      isOn.value = user.value.privateAccount
-      name.value = user.value.fullName
-      username.value = user.value.username
-    }
+      user.value = store.getters["auth/auth/user"];
+      isOn.value = user.value.privateAccount;
+      name.value = user.value.fullName;
+      username.value = user.value.username;
+      profileImg.value = user.value.profilePicture;
+    };
     const toggle = () => {
       isOn.value = !isOn.value;
-    }
+    };
     const updateUser = async () => {
-      await store.dispatch('auth/auth/updateInfo', {
+      await store.dispatch("auth/auth/updateInfo", {
         bio: bio.value,
         username: username.value,
         fullName: name.value,
-        privateAccount: isOn.value
-      })
+        privateAccount: isOn.value,
+      });
+      fetchData();
+    };
+    fetchData();
+    const triggerFileInput = () => {
+      fileInput.value.click();
+    };
+    const handleFileUpload = async (event) => {
+      const file = event.target.files[0];
+      const reader = new FileReader()
+      reader.onloadend = async () => {
+        fileImg.value = reader.result
+      }
+      reader.readAsDataURL(file);
+      if (file && file.type.startsWith("image/")) {
+        await store.dispatch("auth/auth/updateProfilePicture", file);
+      }
       fetchData()
-    }
-    fetchData()
+    };
+    onMounted(fetchData)
     return {
       isOn,
       toggle,
@@ -131,7 +176,12 @@ export default {
       name,
       username,
       bio,
-      updateUser
+      profileImg,
+      updateUser,
+      fileInput,
+      fileImg,
+      triggerFileInput,
+      handleFileUpload,
     };
   },
 };
@@ -143,6 +193,7 @@ export default {
 }
 img {
   width: 70px;
+  height: 70px;
   border-radius: 50%;
   border: 1px solid #ccc;
 }
@@ -156,12 +207,12 @@ img {
   height: 70px;
 }
 
-input, .privacy {
+input,
+.privacy {
   border: 1px solid black;
   border-radius: 15px;
 }
 button {
   border-radius: 15px;
 }
-
 </style>

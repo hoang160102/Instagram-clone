@@ -2,7 +2,8 @@
   <div class="right mt-10 h-screen">
     <div v-if="user" class="user flex align-center justify-between">
       <router-link :to="`/${user.username}`" class="info flex align-center">
-        <img src="../../../assets/avatar/default-avatar.jpg" alt="" />
+        <img v-if="user.profilePicture.length > 5" :src="user.profilePicture" alt="">
+        <img v-else src="../../../assets/avatar/default-avatar.jpg" alt="" />
         <div class="user-info ml-3">
           <div class="username font-semibold text-sm">{{ user.username }}</div>
           <div class="name text-sm text-gray-500">{{ user.fullName }}</div>
@@ -128,6 +129,7 @@ export default {
 
 img {
   width: 44px;
+  height: 44px;
   border-radius: 50%;
   border: 1px solid #ccc;
 }

@@ -1,4 +1,7 @@
 <template>
+  <div class="loading pt-10 flex justify-center" v-if="loading">
+      <v-progress-circular color="red" indeterminate></v-progress-circular>
+  </div>
   <main-content>
     <div class="container flex justify-center">
       <new-feed></new-feed>
