@@ -1,5 +1,5 @@
 <template>
-  <div v-if="user" class="logo">
+  <div class="logo">
     <div class="brand py-5 px-3 text-2xl mb-5">Instagram</div>
     <v-icon size="30" class="logo-insta py-5 px-3 text-2xl mb-6"
       >mdi-instagram</v-icon
@@ -28,7 +28,7 @@
     </div>
     <router-link
       v-if="user"
-      :to="`/${user.username}/`"
+      :to="`/${user.username}`"
       class="nav rounded-md profile py-2 mb-5 px-3 flex align-center"
     >
       <img

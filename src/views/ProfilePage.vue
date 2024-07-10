@@ -2,7 +2,12 @@
   <main-content>
     <div class="container mx-auto p-10">
       <div v-if="user" class="profile flex pb-7 px-10">
-        <img class="rounded-full user-img" v-if="user.profilePicture.length > 0" :src="user.profilePicture" alt="">
+        <img
+          class="rounded-full user-img"
+          v-if="user.profilePicture.length > 0"
+          :src="user.profilePicture"
+          alt=""
+        />
         <img
           v-else
           class="rounded-full w-full h-full"
@@ -19,10 +24,29 @@
               >Edit profile</router-link
             >
             <button
-              v-else
-              class="ml-5 px-6 rounded-lg py-1 text-white bg-sky-500 font-medium"
-              >Follow</button
+              v-if="!isCurrentUser && !isFollow"
+              @click="followUser"
+              class="ml-5 px-6 rounded-lg py-2 text-white bg-sky-500 font-medium"
             >
+              <span v-if="!loading">Follow</span>
+              <v-progress-circular
+                v-else
+                color="primary"
+                indeterminate
+              ></v-progress-circular>
+            </button>
+            <button
+              v-if="!isCurrentUser && isFollow"
+              @click="unfollowUser"
+              class="ml-5 px-6 rounded-lg py-2 text-white bg-sky-500 font-medium"
+            >
+              <span v-if="!loading">Unfollow</span>
+              <v-progress-circular
+                v-else
+                color="primary"
+                indeterminate
+              ></v-progress-circular>
+            </button>
           </div>
           <div class="count-num mt-5 w-2/3 justify-between flex px-10">
             <div class="posts flex">
@@ -30,11 +54,15 @@
               <span class="ml-1">posts</span>
             </div>
             <div class="followers flex">
-              <div class="num-followers font-medium">{{ user.followers.length }}</div>
+              <div class="num-followers font-medium">
+                {{ user.followers.length }}
+              </div>
               <span class="ml-1">followers</span>
             </div>
             <div class="following flex">
-              <div class="num-following font-medium">{{ user.following.length }}</div>
+              <div class="num-following font-medium">
+                {{ user.following.length }}
+              </div>
               <span class="ml-1">following</span>
             </div>
           </div>
@@ -76,20 +104,43 @@ export default {
   setup() {
     const store = useStore();
     const route = useRoute();
-    const auth = getAuth()
+    const auth = getAuth();
     const user = ref(null);
+    const loading = ref(false);
     const getUser = async () => {
       await store.dispatch("users/users/getProfileUser", route.params.username);
-      user.value = store.state.users.users.profileUser[0]
+      user.value = store.state.users.users.profileUser[0];
     };
     const isCurrentUser = computed(() => {
-      getUser();
-      return auth.currentUser.uid === user.value.id
-    })
-    getUser()
+      return auth.currentUser.uid === user.value.id;
+    });
+    const isFollow = computed(() => {
+      return user.value.followers.includes(auth.currentUser.uid);
+    });
+    const followUser = async () => {
+      loading.value = true;
+      await store.dispatch("users/users/follow", user.value.id);
+      await refreshUser();
+      loading.value = false;
+    };
+    const unfollowUser = async () => {
+      loading.value = true;
+      await store.dispatch("users/users/unfollow", user.value.id);
+      await refreshUser();
+      loading.value = false;
+    };
+    const refreshUser = async () => {
+      await getUser();
+    };
+
+    getUser();
     return {
       user,
-      isCurrentUser
+      isCurrentUser,
+      isFollow,
+      loading,
+      followUser,
+      unfollowUser,
     };
   },
 };
@@ -115,5 +166,10 @@ img {
   color: black;
   border-top: 1px solid black;
   font-weight: 500;
+}
+
+.v-progress-circular {
+  width: 18px;
+  height: 18px;
 }
 </style>
