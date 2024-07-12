@@ -16,7 +16,6 @@
       </div>
       <div class="w-full mt-5 img-post">
         <img
-          class="w-full h-full"
           src="../../../assets/post/post-img.png"
           alt=""
         />

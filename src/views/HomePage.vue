@@ -2,7 +2,9 @@
   <main-content>
     <div class="container flex justify-center">
       <new-feed></new-feed>
-      <suggest-follow></suggest-follow>
+      <div class="right-content">
+        <suggest-follow></suggest-follow>
+      </div>
     </div>
   </main-content>
 </template>
@@ -24,5 +26,12 @@ export default {
 <style scoped>
 .container {
   width: 100%;
+}
+
+@media screen and (max-width: 1240px) {
+  .right-content {
+    display: none;
+    width: 0px;
+  }
 }
 </style>

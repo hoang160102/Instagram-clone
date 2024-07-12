@@ -6,6 +6,9 @@ import ProfilePage from "./views/ProfilePage.vue";
 import UserPosts from './components/layout/user-post/UserPosts.vue'
 import SavedPost from "./components/layout/user-post/SavedPost.vue";
 import EditProfile from "./views/EditProfile.vue"
+import app from "./firebaseInit";
+import { getAuth } from "firebase/auth";
+const auth = getAuth(app)
 
 const router = createRouter({
   history: createWebHistory(),
@@ -56,6 +59,23 @@ const router = createRouter({
       meta: { title: "Edit Profile", requiresAuth: true }
     }
   ],
+  scrollBehavior(to, from, savedPos) {
+    if (savedPos) {
+      return savedPos;
+    }
+    return { left: 0, top: 0 };
+  },
+});
+router.beforeEach((to, _, next) => {
+  document.title = `${to.meta.title} | Netflix`;
+  const loggedIn = !!auth.currentUser
+  const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
+  if (requiresAuth && !loggedIn) router.push({name: 'Login'});
+  else if (!requiresAuth && loggedIn) next({name: 'Home'});
+  else {
+    next();
+    return
+  }
 });
 
 export default router;

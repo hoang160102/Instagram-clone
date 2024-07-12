@@ -28,7 +28,7 @@
             <img src="../../../assets/avatar/default-avatar.jpg" alt="" />
             <div class="user-info ml-3">
               <div class="username font-semibold text-sm">_viet_hoang</div>
-              <div class="name text-sm text-gray-500">Nguyen Viet Hoang</div>
+              <div class="name text-xs text-gray-500">Nguyen Viet Hoang</div>
             </div>
           </div>
           <div
@@ -42,7 +42,7 @@
             <img src="../../../assets/avatar/default-avatar.jpg" alt="" />
             <div class="user-info ml-3">
               <div class="username font-semibold text-sm">_viet_hoang</div>
-              <div class="name text-sm text-gray-500">Nguyen Viet Hoang</div>
+              <div class="name text-xs text-gray-500">Nguyen Viet Hoang</div>
             </div>
           </div>
           <div
@@ -56,7 +56,7 @@
             <img src="../../../assets/avatar/default-avatar.jpg" alt="" />
             <div class="user-info ml-3">
               <div class="username font-semibold text-sm">_viet_hoang</div>
-              <div class="name text-sm text-gray-500">Nguyen Viet Hoang</div>
+              <div class="name text-xs text-gray-500">Nguyen Viet Hoang</div>
             </div>
           </div>
           <div
@@ -70,7 +70,7 @@
             <img src="../../../assets/avatar/default-avatar.jpg" alt="" />
             <div class="user-info ml-3">
               <div class="username font-semibold text-sm">_viet_hoang</div>
-              <div class="name text-sm text-gray-500">Nguyen Viet Hoang</div>
+              <div class="name text-xs text-gray-500">Nguyen Viet Hoang</div>
             </div>
           </div>
           <div
@@ -84,7 +84,7 @@
             <img src="../../../assets/avatar/default-avatar.jpg" alt="" />
             <div class="user-info ml-3">
               <div class="username font-semibold text-sm">_viet_hoang</div>
-              <div class="name text-sm text-gray-500">Nguyen Viet Hoang</div>
+              <div class="name text-xs text-gray-500">Nguyen Viet Hoang</div>
             </div>
           </div>
           <div

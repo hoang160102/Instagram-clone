@@ -14,12 +14,16 @@ const db = getFirestore(app);
 const auth = getAuth();
 export const state = {
   profileUser: null,
+  allUsers: null
 };
 
 export const mutations = {
   fetchProfileUser(state, data) {
     state.profileUser = data;
   },
+  fetchAllUsers(state, data) {
+    state.allUsers = data
+  }
 };
 
 export const actions = {
@@ -63,4 +67,12 @@ export const actions = {
       console.log(err)
     }
   },
+  async getAllUsers({ commit }) {
+    const usersCol = collection(db, "users");
+    const userSnapshot = await getDocs(usersCol);
+    const data = userSnapshot.docs.map((doc) => {
+      return doc.data()
+    });
+    commit('fetchAllUsers', data)
+  }
 };
