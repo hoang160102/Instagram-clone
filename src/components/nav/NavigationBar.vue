@@ -36,7 +36,7 @@
         <span v-if="!isSearch" class="ml-4 text-lg">Create</span>
       </div>
       <router-link
-        :to="`/${user.username}/`"
+        :to="`/${user.username}`"
         class="nav rounded-md profile py-2 mb-5 px-3 flex align-center"
       >
         <img

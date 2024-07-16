@@ -10,7 +10,7 @@
         />
         <img
           v-else
-          class="rounded-full w-full h-full"
+          class="rounded-full user-img"
           src="../assets/avatar/default-avatar.jpg"
           alt=""
         />
@@ -53,13 +53,13 @@
               <div class="num-post font-medium">0</div>
               <span class="ml-1">posts</span>
             </div>
-            <div class="followers flex">
+            <div @click="showFollowers" class="followers cursor-pointer flex">
               <div class="num-followers font-medium">
                 {{ user.followers.length }}
               </div>
               <span class="ml-1">followers</span>
             </div>
-            <div class="following flex">
+            <div @click="showFollowing" class="following cursor-pointer flex">
               <div class="num-following font-medium">
                 {{ user.following.length }}
               </div>
@@ -96,20 +96,26 @@
 </template>
 
 <script>
-import { computed, ref } from "vue";
+import { computed, ref, watch} from "vue";
 import { useStore } from "vuex";
 import { useRoute } from "vue-router";
 import { getAuth } from "firebase/auth";
-export default {
+import router from "@/router";
+export default {                                                                                                                                                                                                                                                                                                                                                                                                                                                       
   setup() {
     const store = useStore();
     const route = useRoute();
     const auth = getAuth();
     const user = ref(null);
+    const allUsers = ref(null);
     const loading = ref(false);
-    const getUser = async () => {
-      await store.dispatch("users/users/getProfileUser", route.params.username);
+    const username = ref(route.params.username)
+    // const followers = ref(null)
+    const getUser = async (username) => {
+      await store.dispatch("users/users/getProfileUser", username);
+      await store.dispatch("users/users/getAllUsers");
       user.value = store.state.users.users.profileUser[0];
+      allUsers.value = store.state.users.users.allUsers;
     };
     const isCurrentUser = computed(() => {
       return auth.currentUser.uid === user.value.id;
@@ -117,6 +123,9 @@ export default {
     const isFollow = computed(() => {
       return user.value.followers.includes(auth.currentUser.uid);
     });
+    watch(() => route.params.username, (newUsername) => {
+      getUser(newUsername)
+    })
     const followUser = async () => {
       loading.value = true;
       await store.dispatch("users/users/follow", user.value.id);
@@ -129,11 +138,16 @@ export default {
       await refreshUser();
       loading.value = false;
     };
-    const refreshUser = async () => {
-      await getUser();
+    const showFollowers = async () => {
+      router.push(`/${route.params.username}/followers`)
     };
-
-    getUser();
+    const showFollowing = async () => {
+      router.push(`/${route.params.username}/following`)
+    };
+    const refreshUser = async () => {
+      await getUser(username.value);
+    };
+    getUser(username.value);
     return {
       user,
       isCurrentUser,
@@ -141,6 +155,9 @@ export default {
       loading,
       followUser,
       unfollowUser,
+      showFollowers,
+      showFollowing,
+      close
     };
   },
 };
@@ -150,13 +167,11 @@ export default {
 .container {
   max-width: 1000px;
 }
-img {
-  border: 2px solid #ccc;
-  max-width: 150px;
-}
+
 .user-img {
   min-width: 150px;
   max-height: 150px;
+  border: 2px solid #ccc;
 }
 .user-content {
   border-top: 1px solid #ccc;

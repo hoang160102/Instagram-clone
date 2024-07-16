@@ -14,7 +14,7 @@ const db = getFirestore(app);
 const auth = getAuth();
 export const state = {
   profileUser: null,
-  allUsers: null
+  allUsers: null,
 };
 
 export const mutations = {
@@ -22,8 +22,8 @@ export const mutations = {
     state.profileUser = data;
   },
   fetchAllUsers(state, data) {
-    state.allUsers = data
-  }
+    state.allUsers = data;
+  },
 };
 
 export const actions = {
@@ -54,7 +54,7 @@ export const actions = {
   },
   async unfollow(_, id) {
     const getCurrentUserFromDatabase = doc(db, "users", auth.currentUser.uid);
-    const getUserFromDatabase = doc(db, "users", id)
+    const getUserFromDatabase = doc(db, "users", id);
     try {
       await updateDoc(getCurrentUserFromDatabase, {
         following: arrayRemove(id),
@@ -62,17 +62,34 @@ export const actions = {
       await updateDoc(getUserFromDatabase, {
         followers: arrayRemove(auth.currentUser.uid),
       });
-    }
-    catch(err) {
-      console.log(err)
+    } catch (err) {
+      console.log(err);
     }
   },
   async getAllUsers({ commit }) {
     const usersCol = collection(db, "users");
     const userSnapshot = await getDocs(usersCol);
     const data = userSnapshot.docs.map((doc) => {
-      return doc.data()
+      return doc.data();
     });
-    commit('fetchAllUsers', data)
+    commit("fetchAllUsers", data);
+  },
+  async addRecentSearch(_, item) {
+    const getCurrentUserFromDatabase = doc(db, "users", auth.currentUser.uid);
+    await updateDoc(getCurrentUserFromDatabase, {
+      recent: arrayUnion(item),
+    });
+  },
+  async removeRecentSearch(_, item) {
+    const getCurrentUserFromDatabase = doc(db, "users", auth.currentUser.uid)
+    await updateDoc(getCurrentUserFromDatabase, {
+      recent: arrayRemove(item),
+    });
+  },
+  async removeAllRecent() {
+    const getCurrentUserFromDatabase = doc(db, "users", auth.currentUser.uid)
+    await updateDoc(getCurrentUserFromDatabase, {
+      recent: []
+    })
   }
 };

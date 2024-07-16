@@ -6,6 +6,8 @@ import ProfilePage from "./views/ProfilePage.vue";
 import UserPosts from './components/layout/user-post/UserPosts.vue'
 import SavedPost from "./components/layout/user-post/SavedPost.vue";
 import EditProfile from "./views/EditProfile.vue"
+import FollowingUsers from './components/follow/FollowingUsers.vue'
+import FollowerUsers from "./components/follow/FollowerUsers.vue";
 import app from "./firebaseInit";
 import { getAuth } from "firebase/auth";
 const auth = getAuth(app)
@@ -34,7 +36,7 @@ const router = createRouter({
     {
       path: "/:username",
       name: 'Profile',
-      redirect: '/:username/',
+      redirect: '/:username',
       meta: { title: "Profile", requiresAuth: true },
       component: ProfilePage,
       children: [
@@ -50,6 +52,18 @@ const router = createRouter({
           component: SavedPost,
           meta: { title: "Profile", requiresAuth: true },
         },
+        { 
+          path: "following",
+          name: 'Following',
+          component: FollowingUsers,
+          meta: { title: "Following", requiresAuth: true}
+        },
+        {
+          path: "followers",
+          name: 'Followers',
+          component: FollowerUsers,
+          meta: { title: "Followers", requiresAuth: true }
+        }
       ],
     },
     {

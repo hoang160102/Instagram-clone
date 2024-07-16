@@ -6,7 +6,8 @@
     <div
       :style="minNavWidth"
       v-click-outside="handleClickOutside"
-      class="bar z-20 flex fixed h-screen"
+      class="bar flex fixed h-screen"
+      :class="{'z-10': isShowSearch}"
     >
       <div v-if="user" :style="navWidth" class="side-bar flex p-3 h-full">
         <navigation-bar
@@ -19,7 +20,7 @@
         <div class="nav-search px-4">
           <div class="title px-5 mb-7 font-semibold text-2xl">Search</div>
           <input
-            v-model="searchItem"
+            v-model="searchTerm"
             type="text"
             placeholder="Search"
             class="px-3 rounded-md bg-gray-200 outline-none py-2 w-full"
@@ -28,31 +29,91 @@
         <div class="user-search mt-6 px-6">
           <div class="flex my-4 justify-between">
             <span class="font-semibold">Recent</span>
-            <span class="text-sky-500 font-semibold">Clear all</span>
+            <div class="load-clear">
+              <span
+                @click="clearAllRecent"
+                v-if="recentSearch && recentSearch.length > 0"
+                class="text-sky-500 cursor-pointer font-semibold"
+                >Clear all</span
+              >
+              <v-progress-circular
+                class="ml-3"
+                v-if="loading"
+                color="primary"
+                indeterminate
+              ></v-progress-circular>
+            </div>
           </div>
-          <div class="user">
+          <div v-if="allUsers" class="user">
             <div
-              v-for="item in allUsers"
-              :key="item.id"
-              @click="userInfo"
-              class="user-item py-2 flex align-center justify-between"
+              v-if="searchTerm.length === 0 && recentSearch.length === 0"
+              class="recent-search"
             >
-              <div class="info flex align-center">
-                <img v-if="item.profilePicture.length > 0" :src="item.profilePicture" class="rounded-full" alt="" />
-                <img v-else src="../assets/avatar/default-avatar.jpg" class="rounded-full" alt="">
-                <div class="username text-sm font-semibold ml-4">
-                  {{ item.username }}
+              No recent searchs.
+            </div>
+            <div v-if="searchTerm.length === 0 && recentSearch.length > 0">
+              <div
+                v-for="item in recentSearch"
+                @click="toUserProfile(item.username)"
+                :key="item.id"
+                class="user-item py-2 flex align-center cursor-pointer justify-between"
+              >
+                <div class="info flex align-center">
+                  <img
+                    v-if="item.profilePicture.length > 0"
+                    :src="item.profilePicture"
+                    class="rounded-full"
+                    alt=""
+                  />
+                  <img
+                    v-else
+                    src="../assets/avatar/default-avatar.jpg"
+                    class="rounded-full"
+                    alt=""
+                  />
+                  <div class="username text-sm font-semibold ml-4">
+                    {{ item.username }}
+                  </div>
+                </div>
+                <v-icon
+                  id="clear"
+                  class="clear"
+                  @click.stop="clearUser(item)"
+                  >mdi-window-close</v-icon
+                >
+              </div>
+            </div>
+            <div v-if="searchTerm.length > 0" class="search-profile">
+              <div
+                v-for="item in filterUsers"
+                :key="item.id"
+                @click="userInfo(item.username, item)"
+                class="user-item py-2 flex align-center cursor-pointer justify-between"
+              >
+                <div class="info flex align-center">
+                  <img
+                    v-if="item.profilePicture.length > 0"
+                    :src="item.profilePicture"
+                    class="rounded-full"
+                    alt=""
+                  />
+                  <img
+                    v-else
+                    src="../assets/avatar/default-avatar.jpg"
+                    class="rounded-full"
+                    alt=""
+                  />
+                  <div class="username text-sm font-semibold ml-4">
+                    {{ item.username }}
+                  </div>
                 </div>
               </div>
-              <v-icon class="z-10 clear" @click.stop="clearUser"
-                >mdi-window-close</v-icon
-              >
             </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="layout px-10 z-10 absolute">
+    <div class="layout px-10 absolute">
       <slot></slot>
     </div>
   </section>
@@ -68,6 +129,7 @@ import { useRoute } from "vue-router";
 import clickOuside from "@/directives/clickOuside.js";
 import NavigationBar from "./nav/NavigationBar.vue";
 import TheHeader from "./nav/TheHeader.vue";
+import router from "@/router";
 export default {
   components: {
     NavigationBar,
@@ -81,13 +143,16 @@ export default {
     const user = ref(null);
     const allUsers = ref(null);
     const isShowSearch = ref(false);
-    const searchItem = ref("");
+    const recentSearch = ref(null);
+    const searchTerm = ref("");
+    const loading = ref(false);
     const route = useRoute();
     const run = async () => {
       await store.dispatch("auth/auth/getCurrentUser");
       await store.dispatch("users/users/getAllUsers");
       user.value = store.state.auth.auth.user;
       allUsers.value = store.state.users.users.allUsers;
+      recentSearch.value = user.value.recent;
     };
     const navWidth = computed(() => {
       if (isShowSearch.value) {
@@ -128,17 +193,41 @@ export default {
         };
       }
     });
+    const filterUsers = computed(() => {
+      const keywords = searchTerm.value
+        .toLowerCase()
+        .split(" ")
+        .filter(Boolean);
+      return allUsers.value.filter((user) =>
+        keywords.every((keyword) =>
+          user.username.toLowerCase().includes(keyword)
+        )
+      );
+    });
     const showSearch = async (value) => {
       isShowSearch.value = value;
     };
     const handleClickOutside = async () => {
       isShowSearch.value = false;
     };
-    const userInfo = async () => {
-      console.log(1);
+    const userInfo = async (username, item) => {
+      isShowSearch.value = false
+      await store.dispatch("users/users/addRecentSearch", item);
+      router.push(`/${username}`);
     };
-    const clearUser = async () => {
-      console.log(2);
+    const toUserProfile = async (username) => {
+      isShowSearch.value = false
+      router.push(`/${username}`);
+    };
+    const clearUser = async (item) => {
+      event.target.parentElement.remove();
+      await store.dispatch("users/users/removeRecentSearch", item);
+    };
+    const clearAllRecent = async () => {
+      loading.value = true
+      await store.dispatch("users/users/removeAllRecent");
+      await run();
+      loading.value = false
     };
     run();
     return {
@@ -148,12 +237,17 @@ export default {
       handleClickOutside,
       userInfo,
       clearUser,
+      toUserProfile,
+      clearAllRecent,
       navWidth,
       isShowSearch,
       showSearchInput,
       minNavWidth,
-      searchItem,
+      searchTerm,
       allUsers,
+      filterUsers,
+      recentSearch,
+      loading,
     };
   },
 };
@@ -174,6 +268,7 @@ header {
   width: 80%;
   left: calc(100% / 5);
   top: 0;
+  min-height: 100vh;
 }
 
 .search {
@@ -186,6 +281,11 @@ header {
 
 img {
   width: 44px;
+}
+
+.v-progress-circular {
+  width: 18px;
+  height: 18px;
 }
 
 @media screen and (max-width: 1240px) {

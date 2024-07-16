@@ -64,6 +64,7 @@ export const actions = {
           following: [],
           post: [],
           savedPosts: [],
+          recent: []
         });
         setTimeout(() => {
           router.push({ name: "Login" });
@@ -110,6 +111,7 @@ export const actions = {
         post: getUser[0].data().post,
         profilePicture: getUser[0].data().profilePicture,
         privateAccount: getUser[0].data().privateAccount,
+        recent: getUser[0].data().recent
       };
       await commit("currentUser", currentUser);
     } catch (err) {
@@ -149,6 +151,7 @@ export const actions = {
           post: [],
           savedPosts: [],
           privateAccount: false,
+          recent: []
         });
         router.push({ name: "Home" });
       }
